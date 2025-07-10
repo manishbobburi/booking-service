@@ -44,6 +44,7 @@ async function makePayment(req, res) {
     }
 }
 
+
 module.exports = {
     createBooking,
     makePayment,
