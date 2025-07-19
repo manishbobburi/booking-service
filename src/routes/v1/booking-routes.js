@@ -8,7 +8,7 @@ router.post("/",
     BookingController.createBooking
 );
 
-router.patch("/payments",
+router.post("/payments",
     BookingController.makePayment
 );
 

@@ -1,7 +1,7 @@
 const axios = require("axios");
 const { StatusCodes } = require("http-status-codes");
 
-const { ServerConfig } = require("../config");
+const { ServerConfig, Queue } = require("../config");
 const { AppError } = require("../utils/errors");
 const { Enums } = require("../utils/common");
 const { BOOKED, CANCELLED } = Enums.BOOKING_STATUS;
@@ -55,7 +55,7 @@ async function makePayment(data) {
     const bookingTime = new Date(bookingDeatils.createdAt);
     const currentTime = new Date();
 
-    if(currentTime - bookingTime > 10000) {
+    if(currentTime - bookingTime > 600000) {
       await cancelBooking(bookingDeatils.id);
       throw new AppError("Booking has expired", StatusCodes.BAD_REQUEST);
     }
@@ -69,8 +69,14 @@ async function makePayment(data) {
     }
 
     await bookingRepository.updateBooking(data.bookingId, {status: BOOKED}, transaction);
-
     await transaction.commit();
+
+    Queue.sendData({
+      recepientEmail: "manishbobburi6148@gmail.com",
+      subject: "Flight Booked.",
+      text: `Booking successful for flight ${data.bookingId}`,
+    });
+    
   } catch(error) {
       await transaction.rollback();
       throw error;
