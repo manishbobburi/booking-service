@@ -11,7 +11,15 @@ const BOOKING_STATUS = {
     INITIATED: "initiated",
     CANCELLED: "cancelled",
 }
+
+const ID_TYPE = {
+    AADHAR: "aadhar",
+    PASSPORT: "passport",
+    DRIVERS_LICENSE: "drivers license",
+}
+
 module.exports = {
     SEAT_TYPE,
     BOOKING_STATUS,
+    ID_TYPE,
 }
