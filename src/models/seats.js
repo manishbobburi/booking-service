@@ -11,10 +11,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsTo(models.Airplane, {
-        foreignKey: 'airplaneId',
-        onDelete: 'CASCADE',
-      });
       this.hasMany(models.Ticket, {
         foreignKey: 'seatId',
         onDelete: 'CASCADE',
