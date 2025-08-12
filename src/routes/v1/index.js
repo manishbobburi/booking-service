@@ -1,7 +1,10 @@
 const express = require('express');
-const bookingRoutes = require("./booking-routes");
 const router = express.Router();
 
+const ticketRoutes = require("./ticket-routes");
+const bookingRoutes = require("./booking-routes");
+
 router.use("/bookings", bookingRoutes);
+router.use("/ticket", ticketRoutes);
 
 module.exports = router;
