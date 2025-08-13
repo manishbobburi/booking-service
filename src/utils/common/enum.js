@@ -18,8 +18,16 @@ const ID_TYPE = {
     DRIVERS_LICENSE: "drivers license",
 }
 
+const TICKET_STATUS = {
+    ACTIVE: "active",
+    CANCELLED: "cancelled",
+    USED: "used",
+    VOIDED: "voided",
+}
+
 module.exports = {
     SEAT_TYPE,
     BOOKING_STATUS,
     ID_TYPE,
+    TICKET_STATUS,
 }
