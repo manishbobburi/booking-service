@@ -2,7 +2,7 @@ const { StatusCodes } = require("http-status-codes");
 
 const { AppError } = require("../utils/errors");
 const { TicketRepository } = require("../repositories");
-const { Helpers: { generateTicketNumber } } = require("../utils");
+const { Common: { Enums: { TICKET_STATUS: { CANCELLED } } } , Helpers: { generateTicketNumber } } = require("../utils");
 
 const ticketRepository = new TicketRepository();
 
@@ -16,6 +16,17 @@ async function createTicket(data) {
     }
 }
 
+async function cancelTicket(ticketNumber) {
+    try {
+        const response = await ticketRepository.cancelTicket(ticketNumber, {status: CANCELLED});
+        return response;
+    } catch (error) {
+        console.error(error);
+        throw new AppError("Failed to cancel ticket.", StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+}
+
 module.exports = {
     createTicket,
+    cancelTicket,
 }

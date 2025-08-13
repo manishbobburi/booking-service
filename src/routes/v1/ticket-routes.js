@@ -9,4 +9,8 @@ router.post("/",
     TicketController.createTicket
 );
 
+router.patch("/",
+    TicketController.cancelTicket
+);
+
 module.exports = router;

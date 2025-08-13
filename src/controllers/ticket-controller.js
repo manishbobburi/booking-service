@@ -23,6 +23,24 @@ async function createTicket(req, res) {
     }
 }
 
+async function cancelTicket(req, res) {
+    try {
+        const response = await TicketService.cancelTicket(req.body.ticketNumber);
+
+        SuccessResponse.data = response;
+        return res
+                .status(StatusCodes.OK)
+                .json(SuccessResponse);
+
+    } catch(error) {
+        ErrorResponse.error = error;
+        return res
+                .status(error.statusCode)
+                .json(ErrorResponse);
+    }
+}
+
 module.exports = {
     createTicket,
+    cancelTicket,
 }
