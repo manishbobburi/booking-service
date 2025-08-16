@@ -25,9 +25,16 @@ const TICKET_STATUS = {
     VOIDED: "voided",
 }
 
+const PAYMENT_METHODS = {
+    CARD: "card",
+    UPI: "upi",
+    NET_BANKING: "netbanking",
+}
+
 module.exports = {
     SEAT_TYPE,
     BOOKING_STATUS,
     ID_TYPE,
     TICKET_STATUS,
+    PAYMENT_METHODS,
 }
