@@ -31,10 +31,17 @@ const PAYMENT_METHODS = {
     NET_BANKING: "netbanking",
 }
 
+const PAYMENT_STATUS = {
+    SUCCESS: "success",
+    FAILED: "failed",
+    PROCESSING: "processing",
+}
+
 module.exports = {
     SEAT_TYPE,
     BOOKING_STATUS,
     ID_TYPE,
     TICKET_STATUS,
     PAYMENT_METHODS,
+    PAYMENT_STATUS,
 }
