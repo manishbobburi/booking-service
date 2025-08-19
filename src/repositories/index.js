@@ -3,4 +3,5 @@ module.exports = {
     TicketRepository: require("./ticket-repository"),
     PassengerRepository: require("./passenger-repository"),
     SeatRepository: require("./seats-repository"),
+    PaymentRepository: require("./payment-repository"),
 }
