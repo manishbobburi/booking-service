@@ -1,19 +1,41 @@
 const { StatusCodes } = require("http-status-codes");
 
 const { SuccessResponse, ErrorResponse} = require("../utils/common");
-const { BookingService } = require("../services");
+const { BookingService, PassengerService, TicketService } = require("../services");
 
 const inMemDb = {};
 
 async function createBooking(req, res) {
     try {
-        const booking = await BookingService.createBooking({
-            flightId: req.body.flightId,
-            userId: req.body.userId,
-            noOfSeats: req.body.noOfSeats,
-        });
+        const { flightId, userId, noOfSeats, travellers } = req.body;
 
-        SuccessResponse.data = booking;
+        if (!flightId || !userId || !noOfSeats || !Array.isArray(travellers) || travellers.length === 0) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: "Missing required fields" });
+        }
+
+        const booking = await BookingService.createBooking(
+            { flightId, userId, noOfSeats }
+        );
+
+        const passengerResults = [];
+        for(let i = 0; i < travellers.length; i++) {
+            const p = await PassengerService.createPassenger(
+                { bookingId: booking.id, ...travellers[i] },
+            )
+
+            const ticket = await TicketService.createTicket(
+                { passengerId: p.id, seatId: 3}
+            )
+
+            passengerResults.push({passenger: p, ticket});
+        }
+
+        SuccessResponse.data = {
+            booking,
+            passenger,
+            ticket,
+        };
+        
         return res
                 .status(StatusCodes.CREATED)
                 .json(SuccessResponse);
@@ -22,7 +44,7 @@ async function createBooking(req, res) {
         ErrorResponse.error = error;
 
         return res
-                .status(error.statusCode)
+                .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
                 .json(ErrorResponse);
     }
 }
