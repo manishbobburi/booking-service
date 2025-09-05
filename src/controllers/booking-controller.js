@@ -32,8 +32,7 @@ async function createBooking(req, res) {
 
         SuccessResponse.data = {
             booking,
-            passenger,
-            ticket,
+            passengerResults,
         };
         
         return res
@@ -41,6 +40,7 @@ async function createBooking(req, res) {
                 .json(SuccessResponse);
     } 
     catch(error) {
+        console.error(error);
         ErrorResponse.error = error;
 
         return res
