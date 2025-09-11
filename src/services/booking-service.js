@@ -68,7 +68,17 @@ async function makePayment(data) {
       throw new AppError("User corresponding to booking doesn't match", StatusCodes.BAD_REQUEST);
     }
 
-    await bookingRepository.updateBooking(data.bookingId, {status: BOOKED}, transaction);
+    const response = await bookingRepository.updateBooking(data.bookingId, {status: BOOKED}, transaction);
+
+    let updatedBooking = null;
+
+    if(response[0] == 1) {
+      updatedBooking = await bookingRepository.get(data.bookingId);
+    }
+    else {
+      throw new AppError("Booking update failed", StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+
     await transaction.commit();
 
     Queue.sendData({
@@ -76,7 +86,8 @@ async function makePayment(data) {
       subject: "Flight Booked.",
       text: `Booking successful for flight ${data.bookingId}`,
     });
-    
+
+    return updatedBooking;    
   } catch(error) {
       await transaction.rollback();
       throw error;
