@@ -12,7 +12,7 @@ router.post("/payments",
     BookingController.makePayment
 );
 
-router.get("/mybookings",
+router.get("/mybookings/:userId",
     BookingController.getBookingsByUserId
 )
 

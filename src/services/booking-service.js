@@ -8,6 +8,7 @@ const { BOOKED, CANCELLED } = Enums.BOOKING_STATUS;
 
 const db = require("../models");
 const { BookingRepository } = require("../repositories/");
+const { getFlightById } = require("./flight-service");
 const bookingRepository = new BookingRepository();
 
 async function createBooking(data) {
@@ -124,8 +125,23 @@ async function cancelOldBookings() {
   await bookingRepository.cancelOldBookings(timestamp);
 }
 
+async function getBookingsByUserId(userId) {
+  try {
+    const userBookings = await bookingRepository.getBookingsByUserId(userId);
+
+    if(!userBookings.length) return [];
+
+    return userBookings;
+
+  } catch (error) {
+    console.error(error);
+    throw new AppError("Failed to retrieve bookings.", StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+}
+
 module.exports = {
     createBooking,
     makePayment,
     cancelOldBookings,
+    getBookingsByUserId,
 }
