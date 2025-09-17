@@ -32,7 +32,15 @@ module.exports = (sequelize, DataTypes) => {
     userId: DataTypes.INTEGER,
     status: DataTypes.ENUM(BOOKED, CANCELLED, INITIATED, PENDING),
     noOfSeats: DataTypes.INTEGER,
-    totalCost: DataTypes.INTEGER
+    totalCost: DataTypes.INTEGER,
+    departureCity: DataTypes.STRING,
+    arrivalCity: DataTypes.STRING,
+    departureAirport: DataTypes.STRING,
+    arrivalAirport: DataTypes.STRING,
+    departureAirportCode: DataTypes.STRING,
+    arrivalAirportCode: DataTypes.STRING,
+    departureDate: DataTypes.DATE,
+    arrivalDate: DataTypes.DATE
   }, {
     sequelize,
     modelName: 'Booking',
