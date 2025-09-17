@@ -7,15 +7,18 @@ const inMemDb = {};
 
 async function createBooking(req, res) {
     try {
-        const { flightId, userId, noOfSeats, travellers } = req.body;
+        const { flightId, userId, noOfSeats, travellers, departureCity, arrivalCity, departureAirport, arrivalAirport, departureAirportCode, arrivalAirportCode, departureDate, arrivalDate } = req.body;
+
 
         if (!flightId || !userId || !noOfSeats || !Array.isArray(travellers) || travellers.length === 0) {
             return res.status(StatusCodes.BAD_REQUEST).json({ error: "Missing required fields" });
         }
 
-        const booking = await BookingService.createBooking(
-            { flightId, userId, noOfSeats }
-        );
+        if (typeof departureCity !== "string" || !departureCity.trim()) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: "Invalid departureCity" });
+        }
+
+        const booking = await BookingService.createBooking({ flightId, userId, noOfSeats, departureCity, arrivalCity, departureAirport, arrivalAirport, departureAirportCode, arrivalAirportCode, departureDate, arrivalDate });
 
         const passengerResults = [];
         for(let i = 0; i < travellers.length; i++) {
@@ -51,7 +54,7 @@ async function createBooking(req, res) {
 
 async function makePayment(req, res) {
     try {
-        const idempotencyKey = req.headers["x-idempotency-key"];
+        /* const idempotencyKey = req.headers["x-idempotency-key"];
 
         if(!idempotencyKey) {
             return res
@@ -63,14 +66,16 @@ async function makePayment(req, res) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
                 .json({message: "Cannot retry on successful payment"});
-        }
+        } */
 
         const response = await BookingService.makePayment({
           bookingId: req.body.bookingId,
           userId: req.body.userId,
           totalCost: req.body.totalCost,
         });
-        inMemDb[idempotencyKey] = idempotencyKey;
+
+        /* inMemDb[idempotencyKey] = idempotencyKey; */
+        
         SuccessResponse.data = response;
         return res
                 .status(StatusCodes.CREATED)
@@ -85,8 +90,26 @@ async function makePayment(req, res) {
     }
 }
 
+async function getBookingsByUserId(req, res) {
+    try {
+        const userBookings = await BookingService.getBookingsByUserId(req.params.userId);
+
+        SuccessResponse.data = userBookings;
+        return res
+                .status(StatusCodes.CREATED)
+                .json(SuccessResponse);
+
+    } catch (error) {
+        ErrorResponse.error = error;
+        console.error(error);
+        return res
+                .status(error.statusCode)
+                .json(ErrorResponse);
+    }
+}
 
 module.exports = {
     createBooking,
     makePayment,
+    getBookingsByUserId,
 }

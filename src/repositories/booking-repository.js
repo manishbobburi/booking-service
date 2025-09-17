@@ -1,5 +1,5 @@
 const CrudRepository = require("./crud-repository");
-const { Booking } = require("../models");
+const { Booking, Passenger, Ticket } = require("../models");
 const { Op } = require("sequelize");
 
 const { Enums } = require("../utils/common");
@@ -20,7 +20,7 @@ class BookingRepository extends CrudRepository{
                  id: id 
                 }
             },
-             { transaction: transaction}
+            { transaction: transaction}
         );
         return response;
     }
@@ -41,6 +41,29 @@ class BookingRepository extends CrudRepository{
                 ]
             }
         });
+    }
+
+    async getBookingsByUserId(userId) {
+        const userBookings = await Booking.findAll({
+            where: {
+                userId: userId,
+                status: "booked",
+            },
+            attributes: ['id', 'flightId', 'userId', 'status', 'noOfSeats', 'totalCost', 'createdAt', 'departureCity', 'arrivalCity', 'departureAirport', 'arrivalAirport', 'departureAirportCode', 'arrivalAirportCode', 'departureDate', 'arrivalDate'],
+            include: [
+                {
+                    model: Passenger,
+                    as: 'passengers',
+                    attributes: ['name', 'age', 'idType'],
+                    include: {
+                        model: Ticket,
+                        as: 'tickets',
+                        attributes: ['seatId', 'ticketNumber', 'status'],
+                    }
+                },
+            ],
+        });
+        return userBookings;
     }
 }
 
