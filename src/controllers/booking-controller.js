@@ -43,7 +43,6 @@ async function createBooking(req, res) {
                 .json(SuccessResponse);
     } 
     catch(error) {
-        console.error(error);
         ErrorResponse.error = error;
 
         return res
@@ -54,7 +53,7 @@ async function createBooking(req, res) {
 
 async function makePayment(req, res) {
     try {
-        /* const idempotencyKey = req.headers["x-idempotency-key"];
+        const idempotencyKey = req.headers["x-idempotency-key"];
 
         if(!idempotencyKey) {
             return res
@@ -66,7 +65,7 @@ async function makePayment(req, res) {
             return res
                 .status(StatusCodes.BAD_REQUEST)
                 .json({message: "Cannot retry on successful payment"});
-        } */
+        }
 
         const response = await BookingService.makePayment({
           bookingId: req.body.bookingId,
@@ -74,7 +73,7 @@ async function makePayment(req, res) {
           totalCost: req.body.totalCost,
         });
 
-        /* inMemDb[idempotencyKey] = idempotencyKey; */
+        inMemDb[idempotencyKey] = idempotencyKey;
         
         SuccessResponse.data = response;
         return res
@@ -83,7 +82,6 @@ async function makePayment(req, res) {
     } 
     catch(error) {
         ErrorResponse.error = error;
-        console.error(error);
         return res
                 .status(error.statusCode)
                 .json(ErrorResponse);
@@ -101,7 +99,6 @@ async function getBookingsByUserId(req, res) {
 
     } catch (error) {
         ErrorResponse.error = error;
-        console.error(error);
         return res
                 .status(error.statusCode)
                 .json(ErrorResponse);
