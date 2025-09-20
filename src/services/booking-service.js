@@ -4,11 +4,10 @@ const { StatusCodes } = require("http-status-codes");
 const { ServerConfig, Queue } = require("../config");
 const { AppError } = require("../utils/errors");
 const { Enums } = require("../utils/common");
-const { BOOKED, CANCELLED } = Enums.BOOKING_STATUS;
+const { BOOKED, CANCELLED, FAILED } = Enums.BOOKING_STATUS;
 
 const db = require("../models");
 const { BookingRepository } = require("../repositories/");
-const { getFlightById } = require("./flight-service");
 const bookingRepository = new BookingRepository();
 
 async function createBooking(data) {
@@ -57,7 +56,7 @@ async function makePayment(data) {
     const currentTime = new Date();
 
     if(currentTime - bookingTime > 600000) {
-      await cancelBooking(bookingDeatils.id);
+      await setBookingAsFailed(bookingDeatils.id);
       throw new AppError("Booking has expired", StatusCodes.BAD_REQUEST);
     }
 
@@ -95,34 +94,38 @@ async function makePayment(data) {
   }
 }
 
-async function cancelBooking(bookingId) {
+async function setBookingAsFailed(bookingId, transaction) {
+  const bookingDeatils = await bookingRepository.get(bookingId);
 
-  const transaction = await db.sequelize.transaction();
-
-  try {
-    const bookingDeatils = await bookingRepository.get(bookingId); 
-
-    if(bookingDeatils.status == CANCELLED) {
-      transaction.rollback();
-      return true;
-    }
-
-    await axios.patch(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${bookingDeatils.flightId}/seats`,{
-        seats: bookingDeatils.noOfSeats,
-        dec: 0
-    });
-
-    await bookingRepository.updateBooking(bookingId, {status: CANCELLED}, transaction);
-    await transaction.commit();
-  } catch(error) {
+  if (bookingDeatils.status == FAILED) {
     await transaction.rollback();
-    throw error;
+    return { message: "Booking already marked as failed" };
   }
+
+  await axios.patch(
+    `${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${bookingDeatils.flightId}/seats`,
+    {
+      seats: bookingDeatils.noOfSeats,
+      dec: 0,
+    }
+  );
+
+  await bookingRepository.updateBooking(
+    bookingId,
+    { status: FAILED },
+    transaction
+  );
 }
 
 async function cancelOldBookings() {
-  const timestamp = new Date( Date.now() - 1000 * 300);
-  await bookingRepository.cancelOldBookings(timestamp);
+  const transaction = await db.sequelize.transaction();
+  try {
+    const timestamp = new Date( Date.now() - 1000 * 300);
+    await bookingRepository.cancelOldBookings(timestamp, transaction);
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 }
 
 async function getBookingsByUserId(userId) {

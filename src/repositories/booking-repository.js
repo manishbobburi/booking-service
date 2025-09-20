@@ -3,7 +3,7 @@ const { Booking, Passenger, Ticket } = require("../models");
 const { Op } = require("sequelize");
 
 const { Enums } = require("../utils/common");
-const { BOOKED, CANCELLED } = Enums.BOOKING_STATUS;
+const { BOOKED, CANCELLED, FAILED } = Enums.BOOKING_STATUS;
 
 class BookingRepository extends CrudRepository{
     constructor() {
@@ -25,21 +25,13 @@ class BookingRepository extends CrudRepository{
         return response;
     }
 
-    async cancelOldBookings(timestamp) {
+    async cancelOldBookings(timestamp, transaction) {
         await Booking.update({status: CANCELLED}, {
             where: {
-                [Op.and]: [
-                    {
-                        createdAt: {[Op.lt] : timestamp,}
-                    },
-                    {
-                        status: {[Op.ne]: BOOKED,}
-                    },
-                    {
-                        status: {[Op.ne]: CANCELLED,}
-                    }
-                ]
-            }
+                createdAt: { [Op.lt]: timestamp },
+                status: { [Op.notIn]: [BOOKED, CANCELLED, FAILED] }
+            },
+            transaction,
         });
     }
 
