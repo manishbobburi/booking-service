@@ -4,7 +4,8 @@
   "description": "A basic started boilerplate project for node",
   "main": "index.js",
   "scripts": {
-    "dev": "npx nodemon src/index.js"
+    "dev": "npx nodemon src/index.js",
+    "migrate:prod": "NODE_ENV=production sequelize db:migrate"
   },
   "author": "Sanket",
   "license": "ISC",
