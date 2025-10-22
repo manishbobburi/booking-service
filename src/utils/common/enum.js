@@ -10,6 +10,7 @@ const BOOKING_STATUS = {
     PENDING: "pending",
     INITIATED: "initiated",
     CANCELLED: "cancelled",
+    FAILED: "failed",
 }
 
 const ID_TYPE = {
